@@ -1,25 +1,32 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Towers of Hanoi</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-  </head>
+{% extends "_base.html" %}
+{% load static %}
 
-  <body>
-    <div id="menu">
-      <h1>Towers of Hanoi Solver</h1>
-      <form id="start">
-        <label for="disks">Disks: </label>
-        <input type="number" min="5" max="10" id="disks" required />
-        <input type="submit" value="Solve" />
-      </form>
+{% block title %}Towers of Hanoi Solver{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="my-4">Solve the Towers of Hanoi</h1>
+
+    <div id="menu" class="p-4 bg-light rounded shadow-sm">
+        <form id="start">
+            <label for="disks" class="form-label">Select Number of Disks:</label>
+            <input type="number" min="3" max="10" id="disks" class="form-control mb-3" required>
+            <button type="submit" class="btn btn-primary">Solve</button>
+        </form>
     </div>
+</div>
+<div>
+  <!-- Canvas for the Game -->
+  <canvas id="canvas" class="mt-45" width="800" height="600"></canvas>
 
-    <canvas
-      id="canvas"
-      style="border: 5px solid; width: 800px; height: 600px"
-    ></canvas>
-    <script src="{% static 'js/script.js' %}"></script>
-  </body>
-</html>
+  <!-- Next Move Button -->
+  <button id="next-move" class="btn btn-success" style="display: none;">Next Move</button>
+
+  <!-- Step Counter -->
+  <p id="step-counter" class="mt-2" style="display: none; font-size: 1.2rem;">
+    Moves Taken: <span id="step-count">0</span>
+  </p>
+</div>
+
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
