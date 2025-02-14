@@ -22,4 +22,5 @@ urlpatterns = [
     path("", include("home.urls")),
     path("hanoi/", include("hanoi.urls")),
     path("sliding_puzzle/", include("sliding_puzzle.urls")),
+    path("cipher/", include("cipher.urls")),
 ]

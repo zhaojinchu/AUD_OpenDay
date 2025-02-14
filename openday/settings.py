@@ -38,8 +38,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'hanoi'
+    'hanoi',
+    'cipher',
+    'home',
+    'channels',
+    
 ]
+
+# ASGI application
+ASGI_APPLICATION = "openday.asgi.application"
+
+# WebSocket routing (for real-time output)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

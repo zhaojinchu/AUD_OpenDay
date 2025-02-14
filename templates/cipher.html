@@ -1,0 +1,57 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Ciphey Decryption</h2>
+    <div class="mb-3">
+        <label for="cipherText" class="form-label">Enter Cipher Text:</label>
+        <textarea class="form-control" id="cipherText" rows="3"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="startDecryption()">Decrypt</button>
+
+    <div class="mt-3">
+        <h4>Decryption Process:</h4>
+        <pre id="outputLog" class="p-3 bg-light border"></pre>
+    </div>
+</div>
+
+<script>
+    let socket = new WebSocket("ws://127.0.0.1:8000/ws/cipher/");
+
+    socket.onopen = function () {
+        console.log("WebSocket Connected");
+        document.getElementById("outputLog").innerHTML += "Connected to server...\n";
+    };
+
+    socket.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        let logElement = document.getElementById("outputLog");
+
+        if (data.status === "output" || data.status === "processing") {
+            logElement.innerHTML += data.message + "\n";
+        } else if (data.status === "error") {
+            logElement.innerHTML += "Error: " + data.message + "\n";
+        } else if (data.status === "done") {
+            logElement.innerHTML += "\nDecryption Complete.\n";
+        }
+
+        logElement.scrollTop = logElement.scrollHeight; // Auto-scroll to latest output
+    };
+
+    socket.onclose = function () {
+        console.log("WebSocket Disconnected");
+        document.getElementById("outputLog").innerHTML += "Disconnected from server.\n";
+    };
+
+    function startDecryption() {
+        let cipherText = document.getElementById("cipherText").value;
+        if (!cipherText) {
+            alert("Please enter text to decrypt!");
+            return;
+        }
+
+        document.getElementById("outputLog").innerHTML = "Starting decryption...\n";
+        socket.send(JSON.stringify({ cipher_text: cipherText }));
+    }
+</script>
+{% endblock %}
