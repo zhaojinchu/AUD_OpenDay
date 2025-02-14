@@ -9,5 +9,8 @@ Ensure using Python 3.8.20, or 3.8.x
 
 Run:
 
+To install python dependencies 
 - pip install -r requirements.txt
+
+To run server locally
 - daphne -b 0.0.0.0 -p 8000 openday.asgi:application
