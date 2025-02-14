@@ -28,7 +28,7 @@ class CipheyConsumer(AsyncWebsocketConsumer):
 
             # Run Ciphey without --json
             process = await asyncio.create_subprocess_exec(
-                "ciphey", "-t", cipher_text, "-q", "-g",
+                "ciphey", "-t", cipher_text, "-q",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
