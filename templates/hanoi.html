@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Towers of Hanoi</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body>
+    <div id="menu">
+      <h1>Towers of Hanoi Solver</h1>
+      <form id="start">
+        <label for="disks">Disks: </label>
+        <input type="number" min="5" max="10" id="disks" required />
+        <input type="submit" value="Solve" />
+      </form>
+    </div>
+
+    <canvas
+      id="canvas"
+      style="border: 5px solid; width: 800px; height: 600px"
+    ></canvas>
+    <script src="{% static 'js/script.js' %}"></script>
+  </body>
+</html>
