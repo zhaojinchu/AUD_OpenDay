@@ -1,0 +1,381 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block head %}
+<head>
+	<meta charset="utf-8" />
+	<title>AI Maze generator</title>
+    <!--<link rel="canonical" href="https://ai-mazegenerator.com/">-->
+	<!-- Add color picker library -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+	<style>
+		:root {
+			--primary-color: #3377ff;
+			--primary-hover: #0055ff;
+			--border-color: #e0e0e0;
+			--text-color: #333;
+			--bg-color: #fff;
+			--section-spacing: 2rem;
+		}
+
+        /*
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+			margin: 0;
+			color: var(--text-color);
+			background-color: var(--bg-color);
+			line-height: 1.6;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+        */
+
+		
+
+		/* 控制面板样式 */
+		.controls {
+			background: #f8f9fa;
+			padding: 2rem;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+			margin-bottom: var(--section-spacing);
+		}
+
+		/* 输入框和标签样式 */
+		.input-group {
+			margin-bottom: 1.5rem;
+		}
+
+		p label,
+		.color-picker label {
+			width: 12em;
+			display: inline-block;
+			font-weight: 500;
+			margin-bottom: 0.5rem;
+		}
+
+		input[type="number"],
+		input[type="text"],
+		select {
+			padding: 0.5rem;
+			border: 1px solid var(--border-color);
+			border-radius: 5px;
+			width: 150px;
+			font-size: 1rem;
+			transition: border-color 0.2s;
+		}
+
+		input[type="number"]:focus,
+		input[type="text"]:focus,
+		select:focus {
+			outline: none;
+			border-color: var(--primary-color);
+			box-shadow: 0 0 0 2px rgba(51, 119, 255, 0.1);
+		}
+
+		.title,
+		.desc {
+			text-align: center;
+		}
+
+        /*
+		#language-selector {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 0.2rem;
+		}
+        */
+
+		/* 按钮样式 */
+		button {
+			font-family: inherit;
+			padding: 0.3rem 1rem;
+			font-size: 1rem;
+			font-weight: 500;
+			background: var(--primary-color);
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.2s, transform 0.1s;
+		}
+
+		button:hover {
+			background: var(--primary-hover);
+			transform: translateY(-1px);
+		}
+
+		button:active {
+			transform: translateY(0);
+		}
+
+		/* 颜色选择器样式 */
+		.color-picker {
+			margin: 1rem 0;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		.color-sample {
+			width: 2rem;
+			height: 2rem;
+			border: 2px solid var(--border-color);
+			border-radius: 5px;
+			cursor: pointer;
+			transition: transform 0.2s;
+		}
+
+		.color-sample:hover {
+			transform: scale(1.1);
+		}
+
+		/* 友情链接样式 */
+		.footer-right {
+			margin-top: var(--section-spacing);
+			padding: 2rem 0;
+		}
+
+		.a-link {
+			display: inline-block;
+			padding: 0.5rem 1rem;
+			margin: 0.5rem;
+			font-weight: 500;
+			color: var(--primary-color);
+			text-decoration: none;
+			border-radius: 5px;
+			transition: background-color 0.2s;
+		}
+
+		.a-link:hover {
+			background-color: rgba(51, 119, 255, 0.1);
+		}
+
+		/* Logo样式 */
+		.logo-title {
+			display: flex;
+			align-items: center;
+			margin: 2rem 0;
+			justify-content: space-between;
+		}
+
+		.logo-title img {
+			width: 212px;
+			height: 36px;
+			object-fit: contain;
+		}
+
+		.logo-title .a-link {
+			font-size: 1.2rem;
+			margin: 0;
+			padding: 0 0.5rem;
+		}
+
+		/* Canvas样式 */
+		.canvas {
+			text-align: center;
+		}
+
+		.canvas canvas {
+			border-radius: 4px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+			margin: 2rem auto;
+			max-width: 100%;
+
+		}
+
+		/* 分隔线样式 */
+		.border-top {
+			border-top: 1px solid var(--border-color);
+		}
+
+		/* 响应式设计 */
+		@media (max-width: 768px) {
+			body {
+				padding: 1rem;
+			}
+
+			.controls {
+				padding: 1rem;
+			}
+
+			input[type="number"],
+			input[type="text"],
+			select {
+				width: 100%;
+			}
+
+			p label,
+			.color-picker label {
+				width: 100%;
+				margin-bottom: 0.5rem;
+			}
+
+			.color-picker {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+		}
+	</style>
+</head>
+{% endblock %}
+
+{% block content %}
+<body>
+	<h1 data-translate="title" class="title my-4">
+		AI Maze Generator
+	</h1>
+	<p data-translate="txt" class="desc">
+		Create, solve and download random maze puzzles in any size or color with this online tool. Enter the values for
+		your maze design below and click the "Generate Maze" button.</p>
+	<p data-translate="txt2" class="desc">
+		The <a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker" target="_blank" rel="noopener noreferrer">recursive
+			backtracking algorithm</a> is used to create the mazes.
+		<!-- <a href="https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_backtracker">recursive backtracking algorithm</a> is used to create the mazes.
+		    For more information check out the <a href="https://github.com/keesiemeijer/maze-generator">Github Repository</a>. -->
+	</p>
+
+	<hr>
+	<div class="controls">
+		<p>
+			<label for="wall-size" data-translate="wall">Wall thickness:</label>
+			<input id="wall-size" type="number" name="" value="10" min="1">
+		</p>
+
+		<p>
+			<label for="width" data-translate="columns">Columns:</label>
+			<input id="width" type="number" name="width" value="20" min="3" max="200">
+		</p>
+
+		<p>
+			<label for="height" data-translate="rows">Rows:</label>
+			<input id="height" type="number" name="height" value="20" min="3" max="200">
+		</p>
+		<p>
+			<label for="entry" data-translate="mazeEntries">Maze entries:</label>
+			<select id="entry" name="entry">
+				<option value="" data-translate="none">none</option>
+				<option value="diagonal" selected="selected" data-translate="diagonal">diagonal</option>
+				<option value="horizontal" data-translate="LR">left and right</option>
+				<option value="vertical" data-translate="TB">top and bottom</option>
+			</select>
+		</p>
+		<p>
+			<label for="bias" data-translate="bias">Bias:</label>
+			<select id="bias" name="bias">
+				<option value="" data-translate="none">none</option>
+				<option value="horizontal" data-translate="horizontal">horizontal</option>
+				<option value="vertical" data-translate="bertical">vertical</option>
+			</select>
+		</p>
+		<p class='desc'>
+		<p data-translate="txt3"></p>
+		<!-- The maze can be solved in multiple ways if you remove maze walls. (maximum <span>300</span> walls)<br/> -->
+		<p data-translate="txt4"></p>
+		<a href='https://en.wikipedia.org/wiki/A*_search_algorithm' data-translate="link2" target="_blank" rel="noopener noreferrer">A* search algorithm</a>
+		</p>
+		<p style='padding-bottom: 0; margin-bottom: 0;'>
+			<label for="remove_walls" data-translate="Rm">Remove maze walls:</label>
+			<input id="remove_walls" type="number" name="remove_walls" value="0" min="0" max="200">
+		</p>
+		<div class="color-picker" data-default="#ffffff">
+			<label for="backgroundColor" data-translate="Bcolor">Background Color</label>
+			<input type="color" class="color-input" id="backgroundColor" name="backgroundColor" value="#ffffff">
+		</div>
+		<div class="color-picker" data-default="#000000">
+			<label for="color" data-translate="Mcolor">Maze Color</label>
+			<input type="color" class="color-input" id="color" name="color" value="#000000">
+		</div>
+		<div class="color-picker" data-default="#cc3737">
+			<label for="solveColor" data-translate="Scolor">Solve Color</label>
+			<input type="color" class="color-input" id="solveColor" name="solveColor" value="#cc3737">
+		</div>
+		<div id="generate">
+			<p>
+				<label for="batch-count" data-translate="batchCount">Batch Count:</label>
+				<input id="batch-count" type="number" name="batch-count" value="2" min="2" max="365">
+				<button id="download-batch" onclick="downloadBatchMazes();" data-translate="downloadBatch">Download
+					Batch</button>
+			</p>
+			<button id="create-maze" onclick="initMaze();" class='hide' data-translate="gMaze">Generate Maze</button>
+			<button id="solve" onclick="initSolve();" class='hide' data-translate="sMaze">Solve Maze</button>
+			<a href="" class="hide" id="download" data-translate="Dmaze">download maze</a>
+		</div>
+	</div>
+	<noscript>
+		<p>Sorry... this site requires JavaScript to generate a maze. Please enable it in your browser</p>
+	</noscript>
+	<script type="text/javascript">
+		const createMazeButton = document.getElementById('create-maze');
+		createMazeButton.classList.toggle("hide")
+	</script>
+	<div class="canvas">
+
+		<canvas width="410" height="410" id="maze"></canvas>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+	<script>
+		async function downloadBatchMazes() {
+			const count = parseInt(document.getElementById('batch-count').value);
+			if (count < 2 || count > 365) {
+				alert('Please enter a number between 2 and 365');
+				return;
+			}
+			const zip = new JSZip();  // 创建新的ZIP文件对象
+			const canvas = document.getElementById('maze');  // 获取画布元素，用于生成迷宫图片
+			// const width = parseInt(document.getElementById('width').value);     // 迷宫列数
+			// const height = parseInt(document.getElementById('height').value);   // 迷宫行数
+			// const wallSize = parseInt(document.getElementById('wall-size').value); // 墙壁厚度
+			// const entry = document.getElementById('entry').value;  // 入口类型（none/diagonal/horizontal/vertical）
+			// const bias = document.getElementById('bias').value;    // 迷宫生成偏向（none/horizontal/vertical）
+			// const removeWalls = parseInt(document.getElementById('remove_walls').value); // 要移除的墙壁数量
+			// const backgroundColor = document.getElementById('backgroundColor').value; // 背景颜色
+			// const mazeColor = document.getElementById('color').value;               // 迷宫墙壁颜色
+
+			for (let i = 1; i <= count; i++) {
+				// 生成新迷宫
+				initMaze();
+				// 等待迷宫生成完成
+				await new Promise(resolve => setTimeout(resolve, 100));
+				// 将画布转换为图片
+				const imageData = canvas.toDataURL('image/png');
+				// 将base64图片数据添加到zip
+				const base64Data = imageData.replace(/^data:image\/(png|jpg);base64,/, "");
+				zip.file(`maze-${i}.png`, base64Data, { base64: true });
+			}
+
+			// 生成并下载zip文件
+			zip.generateAsync({ type: "blob" }).then(function (content) {
+				const link = document.createElement('a');
+				link.href = URL.createObjectURL(content);
+				link.download = 'mazes.zip';
+				link.click();
+			});
+		}
+	</script>
+	
+	<script type="text/javascript" src="{% static 'js/maze/globals.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/utils.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/entries.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/maze.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/solver.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/app.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/maze/human-colours-en-gb.js' %}"></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-EBW19K8EJR"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'G-EBW19K8EJR');
+	</script>
+	<script async
+		src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9601176517959836"></script>
+	<script defer src="https://analytics.aimangatranslator.com/script.js"
+		data-website-id="cba384e5-5dd5-4a12-a715-2e0597282199"></script>
+</body>
+{% endblock %}

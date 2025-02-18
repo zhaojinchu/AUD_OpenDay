@@ -1,6 +1,6 @@
 {% extends "_base.html" %}
 
-{% block title %}Home - My Django Project{% endblock %}
+{% block title %}AUD Open Day{% endblock %}
 
 {% block content %}
 <div class="text-center">
@@ -10,5 +10,6 @@
     <a href="{% url 'hanoi_page' %}" class="btn btn-primary btn-lg w-100 mb-2">Towers of Hanoi Solver</a>
     <a href="{% url 'sliding_puzzle_page' %}" class="btn btn-primary btn-lg w-100 mb-2">Sliding Puzzle Solver</a>
     <a href="{% url 'cipher_page' %}" class="btn btn-primary btn-lg w-100 mb-2">Cipher Solver</a>
+    <a href="{% url 'maze_page' %}" class="btn btn-primary btn-lg w-100 mb-2">Maze Solver</a>
 </div>
 {% endblock %}
