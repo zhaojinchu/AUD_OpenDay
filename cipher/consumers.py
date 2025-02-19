@@ -26,34 +26,24 @@ class CipheyConsumer(AsyncWebsocketConsumer):
             # Notify frontend that decryption is starting
             await self.send(json.dumps({"status": "processing", "message": "Starting decryption..."}))
 
-            # Run Ciphey without --json
-            process = await asyncio.create_subprocess_exec(
-                "ciphey", "-t", cipher_text, "-q",
+            # Use create_subprocess_shell for better compatibility on Windows
+            process = await asyncio.create_subprocess_shell(
+                f"ciphey -t \"{cipher_text}\" -q",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
 
-            # Read output in real-time
-            while True:
-                stdout_line = await process.stdout.readline()
-                stderr_line = await process.stderr.readline()
+            stdout, stderr = await process.communicate()
 
-                if stdout_line:
-                    output_text = stdout_line.decode().strip()
-                    await self.send(json.dumps({"status": "output", "message": output_text}))
-
-                if stderr_line:  # Capture errors
-                    error_text = stderr_line.decode().strip()
-                    await self.send(json.dumps({"status": "error", "message": error_text}))
-
-                if not stdout_line and not stderr_line:
-                    break  # No more output, break the loop
-
-            # Wait for the process to complete
-            await process.wait()
+            if stdout:
+                await self.send(json.dumps({"status": "output", "message": stdout.decode().strip()}))
+            
+            if stderr:
+                await self.send(json.dumps({"status": "error", "message": stderr.decode().strip()}))
 
             # Notify frontend that decryption is complete
             await self.send(json.dumps({"status": "done", "message": "Decryption Complete."}))
 
         except Exception as e:
             await self.send(json.dumps({"status": "error", "message": str(e)}))
+
