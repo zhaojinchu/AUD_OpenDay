@@ -3,11 +3,13 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center">Ciphey Decryption</h2>
+    
     <div class="mb-3">
         <label for="cipherText" class="form-label">Enter Cipher Text:</label>
         <textarea class="form-control" id="cipherText" rows="3"></textarea>
     </div>
-    <button class="btn btn-primary" onclick="startDecryption()">Decrypt</button>
+    
+    <button class="btn btn-primary" id="decryptButton" onclick="startDecryption()">Decrypt</button>
 
     <div class="mt-3">
         <h4>Decryption Process:</h4>
@@ -16,42 +18,65 @@
 </div>
 
 <script>
-    let socket = new WebSocket("ws://127.0.0.1:8000/ws/cipher/");
+    let socket;
 
-    socket.onopen = function () {
-        console.log("WebSocket Connected");
-        document.getElementById("outputLog").innerHTML += "Connected to server...\n";
-    };
+    function connectWebSocket() {
+        socket = new WebSocket("ws://127.0.0.1:8000/ws/cipher/");
 
-    socket.onmessage = function (event) {
-        let data = JSON.parse(event.data);
-        let logElement = document.getElementById("outputLog");
+        socket.onopen = function () {
+            console.log("WebSocket Connected");
+            document.getElementById("outputLog").innerHTML += "Connected to server...\n";
+        };
 
-        if (data.status === "output" || data.status === "processing") {
-            logElement.innerHTML += data.message + "\n";
-        } else if (data.status === "error") {
-            logElement.innerHTML += "Error: " + data.message + "\n";
-        } else if (data.status === "done") {
-            logElement.innerHTML += "\nDecryption Complete.\n";
-        }
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+            let logElement = document.getElementById("outputLog");
 
-        logElement.scrollTop = logElement.scrollHeight; // Auto-scroll to latest output
-    };
+            if (data.status === "processing") {
+                logElement.innerHTML += "⏳ " + data.message + "\n";
+            } else if (data.status === "error") {
+                logElement.innerHTML += "❌ " + data.message + "\n";
+            } else if (data.status === "done") {
+                let decryptedText = data.message.replace(/(?:\r\n|\r|\n)/g, '<br>'); // Fix multiline text display
+                logElement.innerHTML += `<br><strong>✅ Decryption Complete:</strong><br>${decryptedText}`;
+                document.getElementById("decryptButton").disabled = false; // Re-enable button
+            }
 
-    socket.onclose = function () {
-        console.log("WebSocket Disconnected");
-        document.getElementById("outputLog").innerHTML += "Disconnected from server.\n";
-    };
+            logElement.scrollTop = logElement.scrollHeight; // Auto-scroll to latest output
+        };
+
+        socket.onclose = function () {
+            console.log("WebSocket Disconnected");
+            document.getElementById("outputLog").innerHTML += "⚠️ Disconnected from server. Reconnecting...\n";
+            setTimeout(connectWebSocket, 3000); // Auto-reconnect after 3 seconds
+        };
+
+        socket.onerror = function () {
+            console.log("WebSocket Error");
+            document.getElementById("outputLog").innerHTML += "❌ WebSocket Error.\n";
+        };
+    }
 
     function startDecryption() {
         let cipherText = document.getElementById("cipherText").value;
+        let button = document.getElementById("decryptButton");
+
         if (!cipherText) {
-            alert("Please enter text to decrypt!");
+            alert("⚠️ Please enter text to decrypt!");
             return;
         }
 
-        document.getElementById("outputLog").innerHTML = "Starting decryption...\n";
+        if (socket.readyState !== WebSocket.OPEN) {
+            alert("⚠️ WebSocket is not connected. Please wait...");
+            return;
+        }
+
+        document.getElementById("outputLog").innerHTML = "⏳ Starting decryption...\n";
+        button.disabled = true; // Disable button to prevent spam clicks
         socket.send(JSON.stringify({ cipher_text: cipherText }));
     }
+
+    connectWebSocket(); // Initialize WebSocket connection
+
 </script>
 {% endblock %}
